@@ -1,0 +1,55 @@
+import React from "react";
+import PropTypes from "prop-types";
+import "./Card.scss";
+
+export default function Card({
+  handleClick,
+  id,
+  type,
+  flipped,
+  solved,
+  height,
+  width,
+  disabled,
+  category,
+}) {
+  return (
+    // <div className="card-container">
+    //   <div className="card">
+    //     <div className="front" style={`background-image: url(../img/clothes/${type})`} />
+    //     <div className="back hidden" style={'background-image: url(../img/back.jpg);'} />
+    //   </div>
+    // </div>
+    <div
+      className={`flip-container ${flipped ? "flipped" : ""}`}
+      style={{
+        height,
+        width,
+      }}
+      onClick={() => disabled ? null : handleClick(id)}
+    >
+      <div className="flipper">
+        <img
+          style={{
+            height,
+            width,
+          }}
+          className={flipped ? "front" : "back"}
+          src={flipped || solved ? `../img/${category}/${type}` : `../img/back.jpg`}
+        />
+      </div>
+    </div>
+  );
+}
+
+Card.propTypes = {
+  handleClick: PropTypes.func.isRequired,
+  id: PropTypes.number.isRequired,
+  flipped: PropTypes.bool.isRequired,
+  solved: PropTypes.bool.isRequired,
+  type: PropTypes.string.isRequired,
+  category: PropTypes.string.isRequired,
+  height: PropTypes.number.isRequired,
+  width: PropTypes.number.isRequired,
+  disabled: PropTypes.bool.isRequired,
+};

@@ -1,0 +1,63 @@
+.game {
+  width: 560px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+
+  &-board {
+    height: 560px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+}
+
+.top-line {
+  display: flex;
+  justify-content: space-between;
+}
+
+.moves {
+  margin-bottom: 10px;
+  padding: 5px 10px;
+  background-color: rgb(223, 122, 169);
+  border-radius: 10px;
+  display: inline-block;
+  min-width: 200px;
+
+  &-count {
+    margin-left: 10px;
+  }
+
+  & p {
+    display: inline-block;
+  }
+}
+
+.game:-webkit-full-screen {
+  margin: auto;
+  left:0;
+  top:0;
+}
+
+.full-screen {
+  padding: 5px 10px;
+  background-color: rgb(223, 122, 169);
+  border-radius: 10px;
+  margin-bottom: 10px;
+
+  &:hover {
+    cursor: pointer;
+    background-color: rgb(223, 54, 133);
+  }
+}
+
+@media (max-width: 980px) {
+  .game {
+    margin-top: 70px;
+    width: 450px;
+
+    &-board {
+      height: 450px;
+    }
+  }
+}
