@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from "prop-types";
 import ButtonChoice from '../ButtonChoice/ButtonChoice';
-import './Difficulty.scss';
 
 const Difficulty = ({onChangeDifficulty, activeBtns}) => {
   return (

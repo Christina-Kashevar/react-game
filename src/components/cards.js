@@ -14,7 +14,10 @@ const cards = {
    'Notre-Dame.jpg', 'opera.jpg', 'petra.jpg', 'piza.jpeg', 'prague-castle.jpg', 'Prambanan.jpg',
    'pyramids.jpg', 'rushmore.jpg', 'sagrada.jpg', 'stonehenge.jpg', 'taj-mahal.jpg', 'The-Grand-Palace.jpg',
    'wall.jpg'],
-  objects:['armchair.jpg', 'ball.jpg', 'ball2.jpg', 'barrel.jpg', 'butterfly.jpg', 'chair.jpg', 'clock.jpg']
+  objects:['armchair.jpg', 'ball.jpg', 'ball2.jpg', 'barrel.jpg', 'butterfly.jpg', 'chair.jpg', 'clock.jpg',
+   'comb.jpg', 'cup.jpg', 'drawer.jpg', 'drill.jpg', 'dumbbell.jpg', 'folder.jpg', 'globe.jpg', 'gloves.jpg',
+   'helmet.jpg', 'iron.jpg', 'kettle.jpg', 'maracas.jpg', 'mouse.png', 'palette.jpg', 'rugby.jpg', 'second-timer.png',
+   'shell.jpg', 'shuttlecock.jpg', 'skates.jpg', 'table.jpg', 'toy.png', 'umbrella.jpg', 'vase.jpg', 'whirligig.jpg']
 }
 
 export default cards;

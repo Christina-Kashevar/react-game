@@ -1,10 +1,11 @@
 import React, {Component} from 'react';
+import Hotkeys from 'react-hot-keys';
 import Game from './components/Game/Game';
 import Options from './components/Options/Options';
 import Settings from './components/Set/Settings';
 import Statistics from './components/Statistics/Statistics';
 import WinModal from './components/WinModal/WinModal';
-import Hotkeys from './components/Hotkeys/Hotkeys';
+import HotkeysList from './components/Hotkeys/Hotkeys';
 import Footer from './components/Footer/Footer';
 import initializeDeck from './components/utils/initializeDeck';
 import './index.scss';
@@ -14,7 +15,8 @@ let storageInfo = localStorage.getItem('chrisGame');
 if(storageInfo) {
   storageInfo = JSON.parse(storageInfo)
 }
-console.log(storageInfo)
+
+// let Hotkeys = window.ReactHotkeys;
 
 class App extends Component {
   state={
@@ -33,7 +35,9 @@ class App extends Component {
     activeBtns: storageInfo ? storageInfo['activeBtns'] : ['4×4', 'Clothes', 'Unlimited Moves'],
     movesLeft: storageInfo ? storageInfo['movesLeft'] : 16,
     limitedMoves: storageInfo ? storageInfo['limitedMoves'] : false,
-    fullscreen: storageInfo ? storageInfo['fullscreen'] : false
+    fullscreen: storageInfo ? storageInfo['fullscreen'] : false,
+    local: true,
+    pause: false
   }
 
   componentDidMount() {
@@ -44,6 +48,7 @@ class App extends Component {
     }
     this.preloadImages()
     localStorage.setItem("chrisGame", JSON.stringify(this.state));
+    console.log(this.state)
   }
 
   componentWillMount() {
@@ -67,7 +72,7 @@ class App extends Component {
     localStorage.setItem("chrisGame", JSON.stringify(this.state));
   }
 
-  settingsHandler = () => {
+  settingsOpenHandler = () => {
     this.setState({
       settingsOpen: true
     })
@@ -81,15 +86,92 @@ class App extends Component {
     localStorage.setItem("chrisGame", JSON.stringify(this.state));
   }
 
-  hotkeysHandler = () => {
+  hotkeysOpenHandler = () => {
     this.setState({
       hotkeysOpen: true
     })
     localStorage.setItem("chrisGame", JSON.stringify(this.state));
   }
 
+  play2 = () => {
+
+  }
+
   autoPlayHandler = () => {
-    console.log('auto play')
+    const targetCards = this.state.cards;
+    const length = targetCards.length
+    for (let i = 0; i < length; i++) {
+      ((ind)=> {
+        setTimeout(() => {
+          if(this.state.flipped.length === 0) {
+            this.setState({flipped: [targetCards[i].id]})
+            const target = this.checkPrevCards(i)
+            if (target !== null) {
+              setTimeout(() => {this.setState({
+                flipped: [this.state.flipped[0], targetCards[target].id],
+                moves: ++this.state.moves,
+                solved: [...this.state.solved, this.state.flipped[0], targetCards[target].id]
+              });
+              this.resetCards();
+            }, 2000)
+            }
+          } else if (this.state.flipped.length === 1) {
+            this.setState({
+              flipped: [this.state.flipped[0], targetCards[ind].id],
+              moves: ++this.state.moves,
+            });
+            if (this.isMatch(targetCards[i].id)) {
+              this.setState({solved: [...this.state.solved, this.state.flipped[0], targetCards[i].id]});
+              this.resetCards();
+            } else {
+              setTimeout(this.resetCards, 1000)
+            }
+          }
+        }, 1000 + (3000 * ind));
+      })(i);
+     
+      if ( this.state.solved.length !== length ) {
+        console.log(15)
+      }
+    // if ( this.state.solved.length !== length ) {
+    //   let unsolvedCards = [];
+    //   for (let j = 0; j < length; j++) {
+    //     if(!this.state.solved.includes(targetCards[j].id)) {
+    //       unsolvedCards.push(j)
+    //     }
+    //   }
+    //   let sortUnsolvedCardsOnes = [unsolvedCards[0]];
+    //   for (let m = 1; m < unsolvedCards; m++) {
+    //     const type = cards[unsolvedCards[0]].type
+    //     if(cards[unsolvedCards[m]].type === type) {
+    //       sortUnsolvedCardsOnes.push(unsolvedCards[m])
+    //     }
+    //     unsolvedCards.splice(m,1)
+    //     unsolvedCards = unsolvedCards.slice(1)
+    //     if (unsolvedCards.length !== 0) {
+    //       sortUnsolvedCardsOnes.push(unsolvedCards[0])
+    //       m = 1
+    //     }
+    //     // m++
+    //     // if(m < unsolvedCards) {
+    //     //   unsolvedCards = unsolvedCards.slice(1)
+    //     //   unsolvedCards
+    //     // }
+    //   }
+
+      // console.log(sortUnsolvedCardsOnes)
+    }
+  }
+
+    checkPrevCards = (i) => {
+    const cardsToCheck = this.state.cards.slice(0, i+1);
+    let match = null;
+    for ( let j = 0; j < cardsToCheck.length - 1; j++) {
+      if (cardsToCheck[j].type === cardsToCheck[i].type) {
+        match = j
+      }
+    }
+    return match;
   }
 
   handleClick = (id) => {
@@ -151,7 +233,12 @@ class App extends Component {
           6: []
         }
       }
+      console.log(results)
       results[this.state.level].push(this.state.moves)
+      results[this.state.level].sort((a,b) => a- b)
+      if (results[this.state.level].length > 10) {
+        results[this.state.level] = results[this.state.level].slice(0, 10)
+      }
       localStorage.setItem("chrisResults", JSON.stringify(results));
     }
   }
@@ -203,7 +290,6 @@ class App extends Component {
   }
 
   changeDifficulty = (val, e) => {
-    console.log(val)
     const newArr = [...this.state.activeBtns]
     newArr[2] = e.target.innerText
     this.setState({
@@ -226,12 +312,50 @@ class App extends Component {
     localStorage.setItem("chrisGame", JSON.stringify(this.state));
   }
 
+  settingsHandler = () => {
+    const newObj = JSON.parse(JSON.stringify(this.state))
+    newObj.settingsOpen = false
+    this.setState({settingsOpen: false})
+    this.startNewGame()
+    localStorage.setItem("chrisGame", JSON.stringify(newObj))
+  }
+
+  statHandler = () => {
+    const newObj = JSON.parse(JSON.stringify(this.state))
+    newObj.statOpen = false
+    this.setState({statOpen: false})
+    localStorage.setItem("chrisGame", JSON.stringify(newObj))
+  }
+
+  hotkeysHandler =() => {
+    const newObj = JSON.parse(JSON.stringify(this.state))
+    newObj.hotkeysOpen = false
+    this.setState({hotkeysOpen: false}),
+    localStorage.setItem("chrisGame", JSON.stringify(newObj))
+  }
+
   render() {
     return (
       <div className='wrapper'>
+        <Hotkeys
+          keyName="shift+a"
+          onKeyDown={() =>this.setState({settingsOpen: true})}
+        />
+        <Hotkeys
+          keyName="shift+b"
+          onKeyDown={() => this.startNewGame()}
+        />
+        <Hotkeys
+          keyName="shift+c"
+          onKeyDown={()=> this.setState({statOpen: true})}
+        />
+        <Hotkeys
+          keyName="shift+s"
+          onKeyDown={()=> this.setState({hotkeysOpen: true})}
+        />
         <Settings
           isOpen={this.state.settingsOpen}
-          onClose={() => {this.setState({settingsOpen: false}), this.startNewGame(), localStorage.setItem("chrisGame", JSON.stringify(this.state));}}
+          onClose={this.settingsHandler}
           activeBtns={this.state.activeBtns}
           onChangeLevel = {this.changeLevel}
           onChangeCategory ={this.changeCategory}
@@ -239,11 +363,12 @@ class App extends Component {
         />
         <Statistics
           isOpen={this.state.statOpen}
-          onClose={() => {this.setState({statOpen: false}), localStorage.setItem("chrisGame", JSON.stringify(this.state))}}
+          onClose={this.statHandler}
+          win={this.state.winOpen}
         />
-        <Hotkeys
+        <HotkeysList
           isOpen={this.state.hotkeysOpen}
-          onClose={() => {this.setState({hotkeysOpen: false}), localStorage.setItem("chrisGame", JSON.stringify(this.state))}}
+          onClose={this.hotkeysHandler}
         />
         <WinModal
           isOpen={this.state.winOpen}
@@ -267,9 +392,9 @@ class App extends Component {
           />
           <Options
             newGameClick={this.startNewGame}
-            settingsClick={this.settingsHandler}
+            settingsClick={this.settingsOpenHandler}
             statClick={this.statOpenHandler}
-            hotkeysClick={this.hotkeysHandler}
+            hotkeysClick={this.hotkeysOpenHandler}
             autoPlayClick={this.autoPlayHandler}
           />
         </div>
