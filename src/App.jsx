@@ -76,28 +76,28 @@ class App extends Component {
   saveToLocal=(key, value) => {
     const newObj = JSON.parse(JSON.stringify(this.state))
     newObj[key] = value
-    localStorage.setItem("chrisGame", JSON.stringify(this.newObj));
+    localStorage.setItem("chrisGame", JSON.stringify(newObj));
   }
 
   settingsOpenHandler = () => {
     this.setState({
       settingsOpen: true
     })
-    this.saveToLocal(settingsOpen, true)
+    this.saveToLocal('settingsOpen', true)
   }
 
   statOpenHandler = () => {
     this.setState({
       statOpen: true
     })
-    this.saveToLocal(statOpen, true)
+    this.saveToLocal('statOpen', true)
   }
 
   hotkeysOpenHandler = () => {
     this.setState({
       hotkeysOpen: true
     })
-    this.saveToLocal(hotkeysOpen, true)
+    this.saveToLocal('hotkeysOpen', true)
   }
 
   autoPlayHandler = () => {
@@ -234,7 +234,7 @@ class App extends Component {
     this.setState({
       soundOn: !this.state.soundOn
     })
-    this.saveToLocal(soundOn, !this.state.soundOn)
+    this.saveToLocal('soundOn', !this.state.soundOn)
   }
 
   musicToggler = () => {
@@ -251,14 +251,14 @@ class App extends Component {
 
   onChangeSoundVol = (vol) => {
     this.setState({soundVolume: vol})
-    this.saveToLocal(soundVolume, vol)
+    this.saveToLocal('soundVolume', vol)
   }
 
   onChangeMusicVol = (vol) => {
     this.setState({musicVolume: vol})
     const audio = document.querySelector('#music');
     audio.volume = (document.querySelector('#music-range').value)/10;
-    this.saveToLocal(musicVolume, vol)
+    this.saveToLocal('musicVolume', vol)
   }
 
   handleClick = (id) => {
@@ -300,12 +300,12 @@ class App extends Component {
     const newObj = JSON.parse(JSON.stringify(this.state))
     newObj.flipped=[]
     newObj.disabled=false
-    localStorage.setItem("chrisGame", JSON.stringify(this.newObj));
+    localStorage.setItem("chrisGame", JSON.stringify(newObj));
   }
 
   sameCardClicked = (id) => {
     this.setState({disabled: false})
-    this.saveToLocal(disabled, false)
+    this.saveToLocal('disabled', false)
     return this.state.flipped.includes(id);
   }
 
@@ -351,7 +351,7 @@ class App extends Component {
   winModalHandler = () => {
     this.setState({ winOpen: false});
     this.startNewGame();
-    this.saveToLocal(winOpen, false)
+    this.saveToLocal('winOpen', false)
   }
 
   changeLevel =(val, e) => {
@@ -366,7 +366,7 @@ class App extends Component {
     newObj.level = val
     newObj.activeBtns = newArr
     newObj.movesLeft = val*4
-    localStorage.setItem("chrisGame", JSON.stringify(this.newObj));
+    localStorage.setItem("chrisGame", JSON.stringify(newObj));
   }
 
   changeCategory =(val, e) => {
@@ -406,19 +406,18 @@ class App extends Component {
   settingsHandler = () => {
     this.setState({settingsOpen: false})
     this.startNewGame()
-    this.saveToLocal(settingsOpen, false)
-    localStorage.setItem("chrisGame", JSON.stringify(newObj))
+    this.saveToLocal('settingsOpen', false)
   }
 
   statHandler = () => {
     this.setState({statOpen: false})
-    this.saveToLocal(statOpen, false)
+    this.saveToLocal('statOpen', false)
     localStorage.setItem("chrisGame", JSON.stringify(newObj))
   }
 
   hotkeysHandler =() => {
     this.setState({hotkeysOpen: false}),
-    this.saveToLocal(hotkeysOpen, false)
+    this.saveToLocal('hotkeysOpen', false)
     localStorage.setItem("chrisGame", JSON.stringify(newObj))
   }
 

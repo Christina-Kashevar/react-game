@@ -11,7 +11,6 @@ module.exports = (env, options) => {
   const config = {
     mode: isProduction ? 'production' : 'development',
     devtool: isProduction ? false : 'source-map',
-    // watch: !isProduction,
     entry: './src/index.js',
     output: {
       path: path.resolve(__dirname, 'build'),
@@ -63,21 +62,7 @@ module.exports = (env, options) => {
               },
             },
           ],
-        },
-        {
-          test: /\.(wav|mp3)$/i,
-          use: [
-            {
-              loader: 'file-loader',
-              options: {
-                name: 'src/sounds/[name].[ext]'
-              },
-            },
-          ],
-          // generator: {
-          // filename: 'src/sounds/sound.mp3'
-          // }
-        },
+        }
       ],
     },
     plugins: [
