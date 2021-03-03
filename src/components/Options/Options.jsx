@@ -6,15 +6,7 @@ import './Options.scss';
 class Options extends Component {
   constructor(props) {
     super(props)
-
-    // this.state = {
-    //   disabled: false
-    // }
   }
-
-  // state = {
-  //   disabled: false
-  // }
 
   newGameHandler = () => {
     console.log(5)
@@ -28,12 +20,12 @@ class Options extends Component {
           <Button
             onClick={this.props.newGameClick}
             text='NEW GAME'
-            // disabled={this.state.disabled}
+            disabled={this.props.disabled}
           />
           <Button
             onClick={this.props.settingsClick}
             text='SETTINGS'
-          //   disabled={this.state.disabled}
+            disabled={this.props.disabled}
           />
           <Button
             onClick={this.props.statClick}

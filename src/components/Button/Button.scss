@@ -20,14 +20,18 @@
     box-shadow: inset 2px 2px 1px rgba(0, 0, 0, .3);
   }
 
+  &:hover {
+    cursor: pointer;
+    background-color: rgb(223, 54, 133);
+  }
+
   &:disabled {
     background: #ccc;
     color: #000;
     cursor: not-allowed;
   }
+}
 
-  &:hover {
-    cursor: pointer;
-    background-color: rgb(223, 54, 133);
-  }
+.last {
+  margin-bottom: 60px;
 }

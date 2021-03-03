@@ -27,7 +27,7 @@ class App extends Component {
     cards: storageInfo ? storageInfo['cards'] : [],
     flipped: storageInfo ? storageInfo['flipped'] : [],
     solved: storageInfo ? storageInfo['solved'] : [],
-    dimension: storageInfo ? storageInfo['dimension'] : widthInitial,
+    dimension: widthInitial,
     disabled: storageInfo ? storageInfo['disabled'] : false,
     level: storageInfo ? storageInfo['level'] : 4,
     category: storageInfo ? storageInfo['category'] : 'clothes',
@@ -36,8 +36,11 @@ class App extends Component {
     movesLeft: storageInfo ? storageInfo['movesLeft'] : 16,
     limitedMoves: storageInfo ? storageInfo['limitedMoves'] : false,
     fullscreen: storageInfo ? storageInfo['fullscreen'] : false,
-    local: true,
-    pause: false
+    autoplay: storageInfo ? storageInfo['autoplay'] : false,
+    soundVolume: storageInfo ? storageInfo['soundVolume'] : 1,
+    musicVolume: storageInfo ? storageInfo['musicVolume'] : 1,
+    soundOn: storageInfo ? storageInfo['soundOn'] : true,
+    musicOn: storageInfo ? storageInfo['musicOn'] : false,
   }
 
   componentDidMount() {
@@ -46,9 +49,8 @@ class App extends Component {
         cards: initializeDeck(this.state.category, this.state.level)
       });
     }
-    this.preloadImages()
+    this.preloadImages();
     localStorage.setItem("chrisGame", JSON.stringify(this.state));
-    console.log(this.state)
   }
 
   componentWillMount() {
@@ -61,7 +63,6 @@ class App extends Component {
       this.setState({
         dimension: smallScreen ? 450 : 560
       });
-      localStorage.setItem("chrisGame", JSON.stringify(this.state));
   }
 
   preloadImages = () => {
@@ -72,32 +73,42 @@ class App extends Component {
     localStorage.setItem("chrisGame", JSON.stringify(this.state));
   }
 
+  saveToLocal=(key, value) => {
+    const newObj = JSON.parse(JSON.stringify(this.state))
+    newObj[key] = value
+    localStorage.setItem("chrisGame", JSON.stringify(this.newObj));
+  }
+
   settingsOpenHandler = () => {
     this.setState({
       settingsOpen: true
     })
-    localStorage.setItem("chrisGame", JSON.stringify(this.state));
+    this.saveToLocal(settingsOpen, true)
   }
 
   statOpenHandler = () => {
     this.setState({
       statOpen: true
     })
-    localStorage.setItem("chrisGame", JSON.stringify(this.state));
+    this.saveToLocal(statOpen, true)
   }
 
   hotkeysOpenHandler = () => {
     this.setState({
       hotkeysOpen: true
     })
-    localStorage.setItem("chrisGame", JSON.stringify(this.state));
-  }
-
-  play2 = () => {
-
+    this.saveToLocal(hotkeysOpen, true)
   }
 
   autoPlayHandler = () => {
+    this.setState({
+      autoplay: true,
+      moves: 0,
+      flipped: [],
+      solved: [],
+      disabled: true,
+      limitedMoves: false
+    })
     const targetCards = this.state.cards;
     const length = targetCards.length
     for (let i = 0; i < length; i++) {
@@ -127,43 +138,78 @@ class App extends Component {
               setTimeout(this.resetCards, 1000)
             }
           }
+          if (i === length -1) {
+            setTimeout(this.autoPlayCheck, 3000)
+          }
         }, 1000 + (3000 * ind));
       })(i);
-     
-      if ( this.state.solved.length !== length ) {
-        console.log(15)
-      }
-    // if ( this.state.solved.length !== length ) {
-    //   let unsolvedCards = [];
-    //   for (let j = 0; j < length; j++) {
-    //     if(!this.state.solved.includes(targetCards[j].id)) {
-    //       unsolvedCards.push(j)
-    //     }
-    //   }
-    //   let sortUnsolvedCardsOnes = [unsolvedCards[0]];
-    //   for (let m = 1; m < unsolvedCards; m++) {
-    //     const type = cards[unsolvedCards[0]].type
-    //     if(cards[unsolvedCards[m]].type === type) {
-    //       sortUnsolvedCardsOnes.push(unsolvedCards[m])
-    //     }
-    //     unsolvedCards.splice(m,1)
-    //     unsolvedCards = unsolvedCards.slice(1)
-    //     if (unsolvedCards.length !== 0) {
-    //       sortUnsolvedCardsOnes.push(unsolvedCards[0])
-    //       m = 1
-    //     }
-    //     // m++
-    //     // if(m < unsolvedCards) {
-    //     //   unsolvedCards = unsolvedCards.slice(1)
-    //     //   unsolvedCards
-    //     // }
-    //   }
-
-      // console.log(sortUnsolvedCardsOnes)
     }
   }
 
-    checkPrevCards = (i) => {
+  autoPlayCheck = () => {
+    const targetCards = this.state.cards;
+    const length = targetCards.length
+    if ( this.state.solved.length !== length ) {
+    let unsolvedCards = [];
+    for (let j = 0; j < length; j++) {
+      if(!this.state.solved.includes(targetCards[j].id)) {
+        unsolvedCards.push(j)
+      }
+    }
+    let sortedCards = [];
+    const func = () => {for (let m = 1; m < unsolvedCards.length; m++) {
+      const type = targetCards[sortedCards[sortedCards.length-1]].type
+      if(targetCards[unsolvedCards[m]].type === type) {
+        sortedCards.push(unsolvedCards[m]);
+        unsolvedCards.splice(m,1)
+        unsolvedCards = unsolvedCards.slice(1)
+
+      }}
+    }
+    while(unsolvedCards.length !== 0) {
+      sortedCards.push(unsolvedCards[0]);
+      func()
+    }
+
+    for (let i = 0; i < sortedCards.length; i++) {
+      ((ind)=> {
+        setTimeout(() => {
+          if(this.state.flipped.length === 0) {
+            this.setState({flipped: [targetCards[sortedCards[i]].id]})
+          } else if (this.state.flipped.length === 1) {
+            this.setState({
+              flipped: [this.state.flipped[0], targetCards[sortedCards[i]].id],
+              moves: ++this.state.moves,
+            });
+            if (this.isMatch(targetCards[sortedCards[i]].id)) {
+              this.setState({solved: [...this.state.solved, this.state.flipped[0], targetCards[sortedCards[i]].id]});
+              this.resetCards();
+            } else {
+              setTimeout(this.resetCards, 1000)
+            }
+          }
+        }, 1000 + (3000 * ind));
+        if (i === sortedCards.length -1) {
+          this.finishAutoPlay()
+        }
+      })(i);
+    }
+   } else {
+     this.finishAutoPlay()
+   }
+  }
+
+  finishAutoPlay = () => {
+    setTimeout(() => {
+      this.setState({autoplay: false, disabled: false})
+      const newObj = JSON.parse(JSON.stringify(this.state))
+      newObj.autoplay = false
+      newObj.disabled = false
+      localStorage.setItem("chrisGame", JSON.stringify(newObj));
+    }, 3000)
+  }
+
+  checkPrevCards = (i) => {
     const cardsToCheck = this.state.cards.slice(0, i+1);
     let match = null;
     for ( let j = 0; j < cardsToCheck.length - 1; j++) {
@@ -174,10 +220,49 @@ class App extends Component {
     return match;
   }
 
+  playSound = () => {
+    if(!this.state.soundOn) {
+      return
+    }
+    const audio = document.querySelector('#sound');
+    audio.volume = (document.querySelector('#sound-range').value)/10;
+    audio.currentTime = 0;
+    audio.play();
+  }
+
+  soundToggler = () => {
+    this.setState({
+      soundOn: !this.state.soundOn
+    })
+    this.saveToLocal(soundOn, !this.state.soundOn)
+  }
+
+  musicToggler = () => {
+    this.setState({musicOn: !this.state.musicOn})
+    const audio = document.querySelector('#music');
+    if(this.state.musicOn) {
+      audio.pause();
+    } else {
+    audio.volume = (document.querySelector('#music-range').value)/10;
+    audio.currentTime = 0;
+    audio.play();
+    }
+  }
+
+  onChangeSoundVol = (vol) => {
+    this.setState({soundVolume: vol})
+    this.saveToLocal(soundVolume, vol)
+  }
+
+  onChangeMusicVol = (vol) => {
+    this.setState({musicVolume: vol})
+    const audio = document.querySelector('#music');
+    audio.volume = (document.querySelector('#music-range').value)/10;
+    this.saveToLocal(musicVolume, vol)
+  }
+
   handleClick = (id) => {
-    // const audio = document.querySelector('#sound');
-    // audio.currentTime = 0;
-    // audio.play();
+    this.playSound();
     this.setState({disabled: true})
     const newObj = JSON.parse(JSON.stringify(this.state))
     if (this.state.flipped.length === 0) {
@@ -212,12 +297,15 @@ class App extends Component {
 
   resetCards = () => {
     this.setState({flipped: [], disabled: false})
-    localStorage.setItem("chrisGame", JSON.stringify(this.state));
+    const newObj = JSON.parse(JSON.stringify(this.state))
+    newObj.flipped=[]
+    newObj.disabled=false
+    localStorage.setItem("chrisGame", JSON.stringify(this.newObj));
   }
 
   sameCardClicked = (id) => {
-    localStorage.setItem("chrisGame", JSON.stringify(this.state));
     this.setState({disabled: false})
+    this.saveToLocal(disabled, false)
     return this.state.flipped.includes(id);
   }
 
@@ -233,7 +321,6 @@ class App extends Component {
           6: []
         }
       }
-      console.log(results)
       results[this.state.level].push(this.state.moves)
       results[this.state.level].sort((a,b) => a- b)
       if (results[this.state.level].length > 10) {
@@ -264,7 +351,7 @@ class App extends Component {
   winModalHandler = () => {
     this.setState({ winOpen: false});
     this.startNewGame();
-    localStorage.setItem("chrisGame", JSON.stringify(this.state));
+    this.saveToLocal(winOpen, false)
   }
 
   changeLevel =(val, e) => {
@@ -275,7 +362,11 @@ class App extends Component {
       activeBtns: newArr,
       movesLeft: val*4
     })
-    localStorage.setItem("chrisGame", JSON.stringify(this.state));
+    const newObj = JSON.parse(JSON.stringify(this.state))
+    newObj.level = val
+    newObj.activeBtns = newArr
+    newObj.movesLeft = val*4
+    localStorage.setItem("chrisGame", JSON.stringify(this.newObj));
   }
 
   changeCategory =(val, e) => {
@@ -313,24 +404,21 @@ class App extends Component {
   }
 
   settingsHandler = () => {
-    const newObj = JSON.parse(JSON.stringify(this.state))
-    newObj.settingsOpen = false
     this.setState({settingsOpen: false})
     this.startNewGame()
+    this.saveToLocal(settingsOpen, false)
     localStorage.setItem("chrisGame", JSON.stringify(newObj))
   }
 
   statHandler = () => {
-    const newObj = JSON.parse(JSON.stringify(this.state))
-    newObj.statOpen = false
     this.setState({statOpen: false})
+    this.saveToLocal(statOpen, false)
     localStorage.setItem("chrisGame", JSON.stringify(newObj))
   }
 
   hotkeysHandler =() => {
-    const newObj = JSON.parse(JSON.stringify(this.state))
-    newObj.hotkeysOpen = false
     this.setState({hotkeysOpen: false}),
+    this.saveToLocal(hotkeysOpen, false)
     localStorage.setItem("chrisGame", JSON.stringify(newObj))
   }
 
@@ -353,6 +441,10 @@ class App extends Component {
           keyName="shift+s"
           onKeyDown={()=> this.setState({hotkeysOpen: true})}
         />
+        <Hotkeys
+          keyName="shift+d"
+          onKeyDown={()=> this.autoPlayHandler()}
+        />
         <Settings
           isOpen={this.state.settingsOpen}
           onClose={this.settingsHandler}
@@ -360,6 +452,10 @@ class App extends Component {
           onChangeLevel = {this.changeLevel}
           onChangeCategory ={this.changeCategory}
           onChangeDifficulty={this.changeDifficulty}
+          soundVol={this.state.soundVolume}
+          onChangeSoundVol={this.onChangeSoundVol}
+          musicVol={this.state.musicVolume}
+          onChangeMusicVol={this.onChangeMusicVol}
         />
         <Statistics
           isOpen={this.state.statOpen}
@@ -382,13 +478,17 @@ class App extends Component {
             movesLeft={this.state.movesLeft}
             limitedMoves={this.state.limitedMoves}
             cards={this.state.cards}
-            width={this.state.dimension / this.state.level * 0.9}
+            width={this.state.dimension / this.state.level * 0.95}
             flipped={this.state.flipped}
             handleClick={this.handleClick}
             disabled={this.state.disabled}
             solved={this.state.solved}
             category={this.state.category}
             handleFullScreen={this.fullscreenToggle}
+            soundOn={this.state.soundOn}
+            soundToggler={this.soundToggler}
+            musicOn={this.state.musicOn}
+            musicToggler={this.musicToggler}
           />
           <Options
             newGameClick={this.startNewGame}
@@ -396,12 +496,16 @@ class App extends Component {
             statClick={this.statOpenHandler}
             hotkeysClick={this.hotkeysOpenHandler}
             autoPlayClick={this.autoPlayHandler}
+            disabled={this.state.autoplay}
           />
         </div>
+        <audio id='sound'><source src="https://s3.amazonaws.com/freecodecamp/drums/Heater-1.mp3" /></audio>
+        <audio id='music' loop><source src="https://drivemusic.club/dl/pXqN7JxgIoJSZ3_eYrqz1Q/1614825131/download_music/2013/11/ludovico-einaudi-life.mp3"/></audio>
         <Footer />
       </div>
     )
   }
+
 }
 
 export default App;

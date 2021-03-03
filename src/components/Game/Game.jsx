@@ -14,9 +14,15 @@ const Game = ({
   category,
   movesLeft,
   limitedMoves,
-  handleFullScreen
+  handleFullScreen,
+  soundOn,
+  soundToggler,
+  musicOn,
+  musicToggler,
   }) => {
+
   document.cancelFullScreen = document.cancelFullScreen || document.webkitCancelFullScreen || document.mozCancelFullScreen;
+
   function enterFullscreen(id) {
     const el = document.getElementById(id);
   
@@ -28,15 +34,14 @@ const Game = ({
       el.mozRequestFullScreen();
     }
 
-    document.querySelector('#'+id).onclick = function(){
+    document.querySelector('.full-screen').onclick = function(){
       exitFullscreen(id);
     }
   }
   function exitFullscreen(id) {
     document.cancelFullScreen();
-    document.querySelector('#'+id).onclick = function(){
+    document.querySelector('.full-screen').onclick = function(){
       enterFullscreen(id);
-      handleFullScreen()
     }
   }
 
@@ -48,6 +53,12 @@ const Game = ({
           <div className='moves'>
             <p className='moves-text'>{ limitedMoves ? 'Moves left:': 'Moves:'}</p>
             <p className='moves-count'>{limitedMoves ? `${movesLeft}` : `${moves}`}</p>
+          </div>
+          <div className='sound'>
+            <i className="material-icons" onClick={soundToggler}>{soundOn ?'music_note' : 'mic_off'}</i>
+          </div>
+          <div className='sound'>
+             <i className="material-icons" onClick={musicToggler}>{musicOn ? 'play_arrow' : 'pause_circle'}</i>
           </div>
           <div className='full-screen' onClick={() => enterFullscreen('game-wrapper')}>Full Screen</div>
         </div>
@@ -86,4 +97,8 @@ Game.propTypes = {
   solved: PropTypes.arrayOf(PropTypes.number).isRequired,
   handleClick: PropTypes.func.isRequired,
   handleFullScreen: PropTypes.func.isRequired,
+  soundOn: PropTypes.bool.isRequired,
+  soundToggler: PropTypes.func.isRequired,
+  musicOn: PropTypes.bool.isRequired,
+  musicToggler: PropTypes.func.isRequired,
 }

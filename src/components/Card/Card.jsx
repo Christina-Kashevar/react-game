@@ -14,12 +14,6 @@ export default function Card({
   category,
 }) {
   return (
-    // <div className="card-container">
-    //   <div className="card">
-    //     <div className="front" style={`background-image: url(../img/clothes/${type})`} />
-    //     <div className="back hidden" style={'background-image: url(../img/back.jpg);'} />
-    //   </div>
-    // </div>
     <div
       className={`flip-container ${flipped ? "flipped" : ""}`}
       style={{

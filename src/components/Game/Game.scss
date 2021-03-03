@@ -39,7 +39,7 @@
   top:0;
 }
 
-.full-screen {
+.full-screen, .sound {
   padding: 5px 10px;
   background-color: rgb(223, 122, 169);
   border-radius: 10px;
@@ -49,6 +49,11 @@
     cursor: pointer;
     background-color: rgb(223, 54, 133);
   }
+}
+
+#game-wrapper:fullscreen {
+  padding: 20px;
+  background-color: rgb(255, 189, 189);
 }
 
 @media (max-width: 980px) {

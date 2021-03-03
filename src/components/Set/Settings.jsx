@@ -5,9 +5,22 @@ import OkButton from '../OkButton/OkButton';
 import Level from './Level/Level';
 import Category from './Category/Category';
 import Difficulty from './Difficulty/Difficulty';
+import Sound from './SoundComponent/SoundComponent';
+import Music from './Music/Music';
 import './Settings.scss';
 
-const Settings = ({isOpen, onClose, onChangeLevel, activeBtns, onChangeCategory,onChangeDifficulty}) => {
+const Settings = ({
+  isOpen,
+  onClose,
+  onChangeLevel,
+  activeBtns,
+  onChangeCategory,
+  onChangeDifficulty,
+  soundVol,
+  onChangeSoundVol,
+  musicVol,
+  onChangeMusicVol,
+}) => {
   const cls = ['modal', 'settings']
 
   if (!isOpen) {
@@ -21,8 +34,9 @@ const Settings = ({isOpen, onClose, onChangeLevel, activeBtns, onChangeCategory,
       <Level onChangeLevel={onChangeLevel} activeBtns={activeBtns}/>
       <Category onChangeCategory={onChangeCategory} activeBtns={activeBtns}/>
       <Difficulty onChangeDifficulty={onChangeDifficulty} activeBtns={activeBtns}/>
+      <Sound soundVol={soundVol} onChange={onChangeSoundVol}/>
+      <Music musicVol={musicVol} onChange={onChangeMusicVol}/>
       <OkButton onclick={onClose}/>
-      {/* <audio src={"../../sounds/sound.mp3"} id='sound'></audio> */}
     </div>
     </>
   )
@@ -37,4 +51,8 @@ Settings.propTypes = {
   onChangeCategory: PropTypes.func.isRequired,
   onChangeDifficulty: PropTypes.func.isRequired,
   activeBtns: PropTypes.array.isRequired,
+  soundVol: PropTypes.number.isRequired,
+  onChangeSoundVol: PropTypes.func.isRequired,
+  musicVol: PropTypes.number.isRequired,
+  onChangeMusicVol: PropTypes.func.isRequired,
 };
